@@ -1,20 +1,33 @@
-version: '3.8'
-
 services:
   api:
-    image: ${DOCKERHUB_USERNAME}/ecommerce-api:latest
+    build: .
     container_name: ecommerce_api
     restart: unless-stopped
-    ports:
-      - "8080:8080"
+    # More secure
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__StoreDbConnection=Server=sqlserver;Database=ECommerceDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
       - ConnectionStrings__IdentityConnection=Server=sqlserver;Database=ECommerceDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
       - Redis__ConnectionString=redis:6379
     depends_on:
       - sqlserver
       - redis
+    networks:
+      - ecommerce_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.crt:/etc/nginx/ssl/nginx.crt
+      - ./nginx/nginx.key:/etc/nginx/ssl/nginx.key
+    depends_on:
+      - api
     networks:
       - ecommerce_net
 

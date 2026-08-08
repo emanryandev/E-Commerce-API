@@ -26,4 +26,5 @@ Thumbs.db
 .DS_Store
 
 # Publish
-publish/
+publish/nginx/*.key
+nginx/*.crt
